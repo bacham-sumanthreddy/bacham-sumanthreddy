@@ -57,7 +57,34 @@ Dataset → DataFrame + type safety (only Scala/Java), combines optimization + c
 4.**Generator**  in python is a special type of function that allows you to iterate over a sequence of values lazily.meaning it does not allow all the values in memory but generates them in demand using the key world yeild.
 USES: memory efficient - no need ti store the larger datasets ram
 
+# Generator function
+def num_generator(n):
+    for i in range(n):
+        yield i
+
+# Using generator
+gen = num_generator(5)
+print(next(gen))  # 0
+print(next(gen))  # 1
+print(list(gen))  # [2, 3, 4]
+
+
     Decorator in python os a specail function that modifies the another function without changing its code.
+
+    # Decorator function
+def my_decorator(func):
+    def wrapper():
+        print("Before function call")
+        func()
+        print("After function call")
+    return wrapper
+
+@my_decorator
+def say_hello():
+    print("Hello!")
+
+say_hello()
+
 
 
 
