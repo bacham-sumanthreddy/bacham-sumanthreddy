@@ -1,0 +1,63 @@
+1. Job VS Stage vs task
+Answer .  job is triggered by an action (count, collect, write).Each action creates one job.
+          2. Stage.Each job is divided into stages, based on shuffle boundaries.A shuffle happens when data must move across partitions (e.g., groupBy, join, distinct). Stages = set of tasks that can run without shuffling.
+          3.tasks : Each stage is divided into tasks, one per partition.Tasks are executed in parallel across executors.👉 Example:If sales.csv is split into 4 partitions:Stage 1 → 4 tasks (1 per partition, apply filter).
+          Stage 2 → 4 tasks (after shuffle, aggregate per partition).
+
+
+2.tansformations and actions  in dataframes
+
+        | Transformation              | Purpose                          | Example                                            |
+| --------------------------- | -------------------------------- | -------------------------------------------------- |
+| `select()`                  | Pick columns                     | `df.select("id", "name")`                          |
+| `withColumn()`              | Add/modify column                | `df.withColumn("taxed", df.amount * 0.1)`          |
+| `withColumnRenamed()`       | Rename column                    | `df.withColumnRenamed("amt","amount")`             |
+| `drop()`                    | Drop column(s)                   | `df.drop("old_col")`                               |
+| `filter()` / `where()`      | Filter rows                      | `df.filter(df.amount > 1000)`                      |
+| `distinct()`                | Remove duplicates                | `df.distinct()`                                    |
+| `dropDuplicates()`          | Deduplicate by keys              | `df.dropDuplicates(["id"])`                        |
+| `orderBy()` / `sort()`      | Sort rows                        | `df.orderBy("amount", ascending=False)`            |
+| `groupBy().agg()`           | Aggregations                     | `df.groupBy("region").sum("amount")`               |
+| `join()`                    | Join DataFrames                  | `df1.join(df2, "id", "inner")`                     |
+| `union()` / `unionByName()` | Append DataFrames                | `df1.unionByName(df2)`                             |
+| `repartition()`             | Increase partitions (shuffle)    | `df.repartition(10)`                               |
+| `coalesce()`                | Decrease partitions (no shuffle) | `df.coalesce(2)`                                   |
+| `na.fill()`                 | Fill null values                 | `df.na.fill(0)`                                    |
+| `na.drop()`                 | Drop rows with nulls             | `df.na.drop()`                                     |
+| `explode()`                 | Expand array into rows           | `df.withColumn("tag", explode(df.tags))`           |
+| `pivot()`                   | Rows → Columns                   | `df.groupBy("region").pivot("year").sum("amount")` |
+| `cast()`                    | Change datatype                  | `df.withColumn("amt", df.amount.cast("int"))`      |
+| `expr()`                    | SQL expressions                  | `df.withColumn("discounted", expr("amount*0.9"))`  |
+
+
+
+| Action               | Purpose                    | Example                                                         |
+| -------------------- | -------------------------- | ---------------------------------------------------------------- |
+| `show()`             | Display rows               | `df.show(5)`                                                     |
+| `collect()`          | Return all rows to driver  | `df.collect()`                                                   |
+| `take(n)`            | Return first n rows        | `df.take(3)`                                                     |
+| `head(n)`            | Same as take               | `df.head(2)`                                                     |
+| `first()`            | First row                  | `df.first()`                                                     |
+| `count()`            | Number of rows             | `df.count()`                                                     |
+| `describe()`         | Summary stats              | `df.describe().show()`                                           |
+| `summary()`          | More detailed stats        | `df.summary().show()`                                            |
+| `toPandas()`         | Convert to Pandas DF       | `df.toPandas()`                                                  |
+| `foreach()`          | Run function per row       | `df.foreach(lambda r: print(r))`                                 |
+| `foreachPartition()` | Run function per partition | `df.foreachPartition(lambda p: print(len(list(p))))`             |
+| `reduce()`           | Reduce using function      | `df.select("amt").rdd.map(lambda x:x[0]).reduce(lambda a,b:a+b)` |
+| `write()`            | Save to storage            | `df.write.parquet("/mnt/data/sales")`                            |
+
+
+
+3.RDD vs DataFrame vs Dataset
+RDD → Low-level API, no schema, not optimized, used for unstructured/custom transformations.
+DataFrame → High-level API with schema, SQL-like, optimized by Catalyst & Tungsten, most widely used in PySpark.
+Dataset → DataFrame + type safety (only Scala/Java), combines optimization + compile-time checks.
+
+4.**Generator**  in python is a special type of function that allows you to iterate over a sequence of values lazily.meaning it does not allow all the values in memory but generates them in demand using the key world yeild.
+USES: memory efficient - no need ti store the larger datasets ram
+
+    Decorator in python os a specail function that modifies the another function without changing its code.
+
+
+
